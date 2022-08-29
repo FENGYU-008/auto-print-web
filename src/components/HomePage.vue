@@ -30,10 +30,10 @@
             </div>
             <div>
               <span class="status">
-                <span :class="{'print-succeed':item.status===-5,'printing':item.status===-4}">
+                <span :class="{'print-succeed':item.status===-5,'printing':item.status===8208}">
                   {{ transStatus(item.status) }}
                 </span>
-                <i class="el-icon-loading" style="margin-left: 5px;" v-show="item.status === -4"></i>
+                <i class="el-icon-loading" style="margin-left: 5px;" v-show="item.status === 8208"></i>
               </span>
               <div style="display: inline-block;float: right;">
                 <el-button type="text" style="margin-right:20px;" @click="previewFile(item.newFilename)">
@@ -213,10 +213,12 @@ export default {
           return '正在添加到打印队列';
         case -3:
           return '成功添加到打印队列';
-        case -4:
+        case 8208:
           return '正在打印';
         case -5:
           return '打印成功';
+        case 0:
+          return '等待打印';
         default :
           return String(status);
       }
@@ -278,8 +280,6 @@ export default {
         });
       }
 
-      //todo 轮询后端获取打印状态
-
       let lock = false;
 
       this.timer = window.setInterval(() => {
@@ -306,6 +306,7 @@ export default {
     items: {
       handler(newItems) {
         let total = 0;
+        let intervalFlag = false;
         for (const key in newItems) {
           const range = newItems[key].options.pages;
           const realPages = this.rangeValidate(range, newItems[key].pages);
@@ -315,6 +316,9 @@ export default {
             this.items[key].price = NaN;
             this.totalAmount = NaN;
             return;
+          }
+          if (newItems[key].status !== -5) {
+            intervalFlag = true;
           }
           this.formErrorMessage = '';
           if (newItems[key].options.monochrome === true && newItems[key].options.side === 'simplex') { // 黑白单面
@@ -329,6 +333,9 @@ export default {
           total += this.items[key].price;
         }
         this.totalAmount = this.decimal(total, 2);
+        if (!intervalFlag) {
+          this.clearInterval();
+        }
       },
       deep: true
     }
