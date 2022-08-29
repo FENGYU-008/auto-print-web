@@ -217,8 +217,6 @@ export default {
           return '正在打印';
         case -5:
           return '打印成功';
-        case 0 :
-          return 'The print job has no specified state.';
         default :
           return String(status);
       }
@@ -370,6 +368,8 @@ export default {
 
 .box-card {
   margin-bottom: 20px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0 1px 2px 0;
+  border-radius: 8px;
 }
 
 .file-icon {

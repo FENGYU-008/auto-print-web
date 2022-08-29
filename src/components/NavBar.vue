@@ -1,12 +1,21 @@
 <template>
   <div>
-    <el-menu :default-active="activeIndex" class="nav" mode="horizontal" router>
+    <el-menu :default-active="activeIndex"
+             class="nav"
+             mode="horizontal"
+             router>
       <el-menu-item class="hidden-xs-only">
         <img src="../assets/shark.jpg" class="nav-icon" alt="logo">
       </el-menu-item>
       <el-menu-item index="home">首页</el-menu-item>
       <el-menu-item index="history">历史记录</el-menu-item>
       <el-menu-item index="state">打印机状态</el-menu-item>
+      <el-menu-item style="float: right;display: flex;align-items: center;">
+        <div style="display: flex;flex-direction: column;align-items: center;">
+          <i class="el-icon-message-solid"></i>
+          <span style="line-height: 14px;font-size: 12px;">通知</span>
+        </div>
+      </el-menu-item>
     </el-menu>
   </div>
 </template>
