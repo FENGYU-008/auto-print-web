@@ -10,6 +10,8 @@
                    v-if="item.extension === '.doc' || item.extension === '.docx'">
               <img src="../assets/icons8-pdf-64.png" class="hidden-xs-only file-icon" alt="file-icon"
                    v-if="item.extension === '.pdf'">
+              <img src="../assets/icons8-image-gallery-64.png" class="hidden-xs-only file-icon" alt="file-icon"
+                   v-if="item.extension === '.jpg'" width="52px">
               <div style="width: 40px;overflow: hidden;display: inline-block;">
                 <span style="color: #606266;">#{{ index + 1 }}</span>
               </div>
@@ -100,7 +102,7 @@
             multiple
             :on-success="handleSuccess"
             :on-error="handleError"
-            accept=".pdf,.doc,.docx,.xlsx">
+            accept=".pdf,.doc,.docx,.xlsx,.jpg">
           <el-button slot="trigger" size="small" type="primary" round>选取文件</el-button>
           <el-button size="small" style="margin-left: 10px;" type="warning" @click="clearFileList" round>
             清空列表
