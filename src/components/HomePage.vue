@@ -262,24 +262,26 @@ export default {
       this.timer = null;
     },
     async startPrint() {
-      this.printButtonDisabled = true;
+      // this.printButtonDisabled = true;
 
       for (const key in this.items) {
-        this.items[key].status = -2;
-        await this.$axios({
-          method: 'post',
-          url: 'http://localhost:5000/print',
-          data: {
-            filename: this.items[key].newFilename,
-            options: this.items[key].options,
-          },
-        }).then((resp) => {
-          this.items[key].status = -3;
-          this.items[key].jobID = resp.data.jobID;
-          console.log(resp);
-        }).catch((err) => {
-          console.log(err);
-        });
+        if (this.items[key].status === -1) {
+          this.items[key].status = -2;
+          await this.$axios({
+            method: 'post',
+            url: 'http://localhost:5000/print',
+            data: {
+              filename: this.items[key].newFilename,
+              options: this.items[key].options,
+            },
+          }).then((resp) => {
+            this.items[key].status = -3;
+            this.items[key].jobID = resp.data.jobID;
+            console.log(resp);
+          }).catch((err) => {
+            console.log(err);
+          });
+        }
       }
 
       let lock = false;
@@ -290,10 +292,12 @@ export default {
           if (!lock) {
             lock = true;
             for (const key in this.items) {
-              this.$axios.get('http://localhost:5000/get_job?jobID=' + this.items[key].jobID)
-                  .then((resp) => {
-                    this.items[key].status = resp.data.status;
-                  });
+              if (this.items[key].status !== -5) {
+                this.$axios.get('http://localhost:5000/get_job?jobID=' + this.items[key].jobID)
+                    .then((resp) => {
+                      this.items[key].status = resp.data.status;
+                    });
+              }
             }
             lock = false;
           }
