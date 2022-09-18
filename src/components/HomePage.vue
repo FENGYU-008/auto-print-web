@@ -11,7 +11,8 @@
               <img src="../assets/icons8-pdf-64.png" class="hidden-xs-only file-icon" alt="file-icon"
                    v-if="item.extension === '.pdf'">
               <img src="../assets/icons8-image-gallery-64.png" class="hidden-xs-only file-icon" alt="file-icon"
-                   v-if="item.extension === '.jpg'" width="52px">
+                   v-if="item.extension === '.jpg' ||item.extension === '.jpeg'|| item.extension === '.png'"
+                   width="52px">
               <div style="width: 40px;overflow: hidden;display: inline-block;">
                 <span style="color: #606266;">#{{ index + 1 }}</span>
               </div>
@@ -102,7 +103,7 @@
             multiple
             :on-success="handleSuccess"
             :on-error="handleError"
-            accept=".pdf,.doc,.docx,.xlsx,.jpg">
+            accept=".pdf,.doc,.docx,.xlsx,.jpg,.jpeg,.png">
           <el-button slot="trigger" size="small" type="primary" round>选取文件</el-button>
           <el-button size="small" style="margin-left: 10px;" type="warning" @click="clearFileList" round>
             清空列表
@@ -221,6 +222,8 @@ export default {
           return '打印成功';
         case 0:
           return '等待打印';
+        case 1:
+          return '已暂停';
         default :
           return String(status);
       }
@@ -291,14 +294,40 @@ export default {
 
           if (!lock) {
             lock = true;
-            for (const key in this.items) {
-              if (this.items[key].status !== -5) {
-                this.$axios.get('http://localhost:5000/get_job?jobID=' + this.items[key].jobID)
-                    .then((resp) => {
-                      this.items[key].status = resp.data.status;
-                    });
+
+            // for (const key in this.items) {
+            //   if (this.items[key].status !== -5) {
+            //     this.$axios.get('http://localhost:5000/get_job?jobID=' + this.items[key].jobID)
+            //         .then((resp) => {
+            //           this.items[key].status = resp.data.status;
+            //         });
+            //   }
+            // }
+
+            this.$axios.get('http://localhost:5000/enum_jobs').then((resp) => {
+              let data = resp.data.data;
+              for (const key in this.items) {
+                let target = this.items[key].jobID;
+                let left = 0, right = data.length - 1;
+                while (left <= right) {
+                  let mid = Math.floor((right - left) / 2) + left;
+                  if (data[mid].jobId === target) {
+                    this.items[key].status = data[mid].status;
+                    break;
+                  } else if (data[mid].jobId > target) {
+                    right = mid - 1;
+                  } else {
+                    left = mid + 1;
+                  }
+                }
+                if (left > right) {
+                  this.items[key].status = -5;
+                }
               }
-            }
+            }).catch((err) => {
+              console.log(err)
+            })
+
             lock = false;
           }
 
