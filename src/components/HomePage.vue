@@ -86,6 +86,11 @@
           <span style="color:#f56c6c;">￥{{ totalAmount }}</span>
         </div>
         <div class="footer-right">
+          <el-switch
+              v-model="defaultArg"
+              active-text="使用默认参数"
+              style="margin-right: 20px">
+          </el-switch>
           <el-button type="primary" round @click="startPrint" :disabled="printButtonDisabled">开始打印</el-button>
         </div>
       </el-footer>
@@ -126,13 +131,13 @@ export default {
     return {
       dialogWidth: '',
       uploadDialogVisible: false,
-      defaultPrinter: '',
       labelPosition: 'left',
       formErrorMessage: '',
       printButtonDisabled: false,
       timer: null,
       items: [],
       totalAmount: 0,
+      defaultArg: false
     }
   },
   created() {
@@ -142,7 +147,6 @@ export default {
   },
   mounted() {
     this.setDialogWidth();
-    this.getDefaultPrinter();
   },
   methods: {
     setDialogWidth() {
@@ -155,13 +159,6 @@ export default {
     },
     uploadFiles() {
       this.uploadDialogVisible = true;
-    },
-    getDefaultPrinter() {
-      this.$axios.get('http://localhost:5000/get_default_printer', {timeout: 2000}).then((resp) => {
-        this.defaultPrinter = resp.data;
-      }).catch((err) => {
-        console.log(err);
-      });
     },
     submitUpload() {
       this.$refs.upload.submit();
@@ -272,7 +269,7 @@ export default {
           this.items[key].status = -2;
           await this.$axios({
             method: 'post',
-            url: 'http://localhost:5000/print',
+            url: 'http://localhost:5000/print?defaultArg=' + this.defaultArg,
             data: {
               filename: this.items[key].newFilename,
               options: this.items[key].options,
